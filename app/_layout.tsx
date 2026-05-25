@@ -1,5 +1,3 @@
-// app/_layout.tsx
-
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +18,6 @@ export default function LayoutPrincipal() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: Colores.fondoPrincipal },
-          animation: "slide_from_right",
         }}
       >
         <Stack.Screen name="index" />
@@ -29,7 +26,7 @@ export default function LayoutPrincipal() {
         <Stack.Screen name="pared-llorosa" />
         <Stack.Screen name="configuracion" />
       </Stack>
-      <Toast position="bottom" bottomOffset={20} />
+      <Toast position="top" bottomOffset={20} />
     </ProveedorCasa>
   );
 }

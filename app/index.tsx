@@ -1,4 +1,3 @@
-// app/index.tsx
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
@@ -7,7 +6,6 @@ import { Colores, Tipografia, Espaciado } from "../src/constantes/tema";
 import BotonAnimado from "../src/componentes/ui/BotonAnimado";
 import SwitchPersonalizado from "../src/componentes/ui/SwitchPersonalizado";
 
-// NUEVA RUTA DE IMPORTACIÓN
 import { useEstadoCasa } from "../src/estado/ContextoCasa";
 import {
   publicarComandoLuz,
@@ -18,7 +16,6 @@ import {
 export default function PantallaInicio() {
   const router = useRouter();
 
-  // Extraemos todo directamente del contexto
   const {
     luces,
     portonAbierto,
@@ -81,7 +78,7 @@ export default function PantallaInicio() {
             onPress={() => router.push("/configuracion")}
           >
             <Wifi color={Colores.textoSecundario} size={24} />
-            <Text style={estilos.textoBotonConectar}>CONECTAR</Text>
+            <Text style={estilos.textoBotonConectar}>CONFIGURAR</Text>
           </BotonAnimado>
         </View>
 
