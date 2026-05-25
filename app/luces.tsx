@@ -9,6 +9,20 @@ import SwitchPersonalizado from "../src/componentes/ui/SwitchPersonalizado";
 import { useEstadoCasa } from "../src/estado/ContextoCasa";
 import { publicarComandoLuz } from "../src/servicios/servicio-mqtt";
 
+const formatearNombreHabitacion = (nombre: string) => {
+  const diccionarioNombres: { [key: string]: string } = {
+    bano: "Baño",
+    jardin: "Jardín",
+    porton: "Portón",
+  };
+
+  const nombreFormateado =
+    diccionarioNombres[nombre] ||
+    nombre.charAt(0).toUpperCase() + nombre.slice(1);
+
+  return nombreFormateado.toUpperCase();
+};
+
 export default function PantallaLuces() {
   const router = useRouter();
   const { luces, actualizarLuz } = useEstadoCasa();
@@ -47,7 +61,7 @@ export default function PantallaLuces() {
                   size={24}
                 />
                 <Text style={estilos.textoHabitacion}>
-                  {habitacion.toUpperCase() }
+                  {formatearNombreHabitacion(habitacion)}
                 </Text>
               </View>
               <SwitchPersonalizado
