@@ -78,7 +78,7 @@ export default function PantallaInicio() {
         <View style={estilos.header}>
           <View>
             <Text style={estilos.textoBienvenido}>Bienvenido a</Text>
-            <Text style={estilos.textoNombre}>Deysa House</Text>
+            <Text style={estilos.textoNombre}>Deysa's House</Text>
 
             <View style={estilos.contenedorIndicador}>
               <View
@@ -124,7 +124,7 @@ export default function PantallaInicio() {
               </Text>
             </BotonAnimado>
           )}
-          
+
           <Text style={estilos.tituloSeccion}>DISPOSITIVOS</Text>
 
           <View style={estilos.gridDispositivos}>
