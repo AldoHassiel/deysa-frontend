@@ -1,24 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+// app/_layout.tsx
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { useEffect } from "react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Colores } from "../src/constantes/tema";
+import { conectarMQTT } from "../src/servicios/servicio-mqtt";
+import { ProveedorCasa } from "../src/estado/ContextoCasa";
+import Toast from "react-native-toast-message";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+export default function LayoutPrincipal() {
+  useEffect(() => {
+    conectarMQTT();
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <ProveedorCasa>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: Colores.fondoPrincipal },
+          animation: "slide_from_right",
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="luces" />
+        <Stack.Screen name="cochera" />
+        <Stack.Screen name="pared-llorosa" />
+        <Stack.Screen name="configuracion" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <Toast position="bottom" bottomOffset={20} />
+    </ProveedorCasa>
   );
 }

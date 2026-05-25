@@ -19,7 +19,28 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.BLUETOOTH_ADVERTISE",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.BLUETOOTH_ADVERTISE"
+      ],
+      "package": "com.aldo1421.deysafrontend"
     },
     "web": {
       "output": "static",
@@ -38,7 +59,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "with-rn-bluetooth-classic"
     ],
     "experiments": {
       "typedRoutes": true,
