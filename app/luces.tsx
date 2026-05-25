@@ -1,4 +1,3 @@
-// app/luces.tsx
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
@@ -48,7 +47,7 @@ export default function PantallaLuces() {
                   size={24}
                 />
                 <Text style={estilos.textoHabitacion}>
-                  {habitacion.toUpperCase()}
+                  {habitacion.toUpperCase() }
                 </Text>
               </View>
               <SwitchPersonalizado
@@ -57,7 +56,6 @@ export default function PantallaLuces() {
               />
             </View>
 
-            {/* Slider de brillo visible solo si la luz está encendida */}
             {info.estado && (
               <View style={estilos.contenedorSlider}>
                 <Text style={estilos.textoBrillo}>
@@ -86,7 +84,11 @@ export default function PantallaLuces() {
 }
 
 const estilos = StyleSheet.create({
-  contenedorSafe: { flex: 1, backgroundColor: Colores.fondoPrincipal },
+  contenedorSafe: {
+    flex: 1,
+    backgroundColor: Colores.fondoPrincipal,
+    paddingVertical: 30,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
