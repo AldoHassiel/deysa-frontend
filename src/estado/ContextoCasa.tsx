@@ -69,14 +69,18 @@ export const ProveedorCasa = ({ children }: { children: ReactNode }) => {
   // Escuchamos los mensajes que llegan de HiveMQ para actualizar el estado
   useEffect(() => {
     setCallbackMensajeMQTT((topico, datos) => {
+      console.log("MQTT Debug -> Tópico:", topico, "| Datos recibidos:", datos);
+
       if (topico === "casa/estado") {
         if (datos.luces) setLuces((prev) => ({ ...prev, ...datos.luces }));
         if (datos.portonAbierto !== undefined)
           setPortonAbierto(datos.portonAbierto);
         if (datos.paredLlorosa)
           setParedLlorosa((prev) => ({ ...prev, ...datos.paredLlorosa }));
-      } else if (topico === "casa/dispositivo/estado") {
-        setDispositivoConectado(datos.online);
+      } else if (topico === "casa/dispositivo") {
+        // Aseguramos que sea booleano, a veces los ESP mandan 1/0
+        const esOnline = !!datos.online;
+        setDispositivoConectado(esOnline);
       }
     });
   }, []);

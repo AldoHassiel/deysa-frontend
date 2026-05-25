@@ -32,11 +32,9 @@ export default function PantallaInicio() {
   );
 
   const alternarLucesMaestro = (nuevoEstado: boolean) => {
-    // Actualización visual inmediata en el contexto
     Object.keys(luces).forEach((habitacion) =>
       actualizarLuz(habitacion, nuevoEstado),
     );
-    // Envío de la orden a la red
     publicarComandoLuz("todas", nuevoEstado);
   };
 
@@ -60,18 +58,32 @@ export default function PantallaInicio() {
           <View>
             <Text style={estilos.textoBienvenido}>Bienvenido</Text>
             <Text style={estilos.textoNombre}>David</Text>
-            <Text
-              style={[
-                estilos.indicadorRed,
-                {
-                  color: dispositivoConectado
-                    ? "#4CAF50"
-                    : Colores.textoSecundario,
-                },
-              ]}
-            >
-              {dispositivoConectado ? "• Casa en línea" : "• Casa desconectada"}
-            </Text>
+
+            {/* AQUÍ ESTÁ EL INDICADOR DE RED MEJORADO */}
+            <View style={estilos.contenedorIndicador}>
+              <View
+                style={[
+                  estilos.puntoIndicador,
+                  {
+                    backgroundColor: dispositivoConectado
+                      ? "#4CAF50"
+                      : "#E53935",
+                  },
+                ]}
+              />
+              <Text
+                style={[
+                  estilos.indicadorRed,
+                  {
+                    color: dispositivoConectado
+                      ? "#4CAF50"
+                      : Colores.textoSecundario,
+                  },
+                ]}
+              >
+                {dispositivoConectado ? "Casa en línea" : "Casa desconectada"}
+              </Text>
+            </View>
           </View>
           <BotonAnimado
             estilo={estilos.botonConectar}
@@ -182,11 +194,24 @@ const estilos = StyleSheet.create({
     fontSize: Tipografia.tamanos.titulo + 4,
     fontWeight: Tipografia.pesos.negrita,
   },
+
+  // NUEVOS ESTILOS PARA EL INDICADOR DE RED
+  contenedorIndicador: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  puntoIndicador: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
   indicadorRed: {
     fontSize: Tipografia.tamanos.etiqueta,
     fontWeight: Tipografia.pesos.negrita,
-    marginTop: 4,
   },
+
   botonConectar: {
     backgroundColor: Colores.fondoTarjetasClaras,
     padding: Espaciado.pequeno,

@@ -30,7 +30,7 @@ export const conectarMQTT = () => {
   cliente.on("connect", () => {
     console.log("[MQTT] ¡Conectado exitosamente a HiveMQ!");
     cliente?.subscribe("casa/estado", { qos: 1 });
-    cliente?.subscribe("casa/dispositivo/estado", { qos: 1 });
+    cliente?.subscribe("casa/dispositivo", { qos: 1 });
     solicitarEstadoCasa();
   });
 
@@ -43,8 +43,7 @@ export const conectarMQTT = () => {
   });
 
   cliente.on("offline", () => {
-    if (callbackMensaje)
-      callbackMensaje("casa/dispositivo/estado", { online: false });
+    if (callbackMensaje) callbackMensaje("casa/dispositivo", { online: false });
   });
 
   cliente.on("message", (topico, payload) => {
