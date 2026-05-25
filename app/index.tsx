@@ -75,9 +75,7 @@ export default function PantallaInicio() {
                 style={[
                   estilos.indicadorRed,
                   {
-                    color: dispositivoConectado
-                      ? "#4CAF50"
-                      : Colores.textoSecundario,
+                    color: dispositivoConectado ? "#4CAF50" : "#E53935",
                   },
                 ]}
               >
