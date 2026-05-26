@@ -1,25 +1,30 @@
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useRouter } from "expo-router";
+import { ChevronLeft, Clock, Edit3, Waves } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
+  Platform,
   SafeAreaView,
   ScrollView,
-  Platform,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { ChevronLeft, Waves, Clock, Edit3 } from "lucide-react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { Colores, Tipografia, Espaciado } from "../src/constantes/tema";
+import Toast from "react-native-toast-message";
 import BotonAnimado from "../src/componentes/ui/BotonAnimado";
 import SwitchPersonalizado from "../src/componentes/ui/SwitchPersonalizado";
+import { Colores, Espaciado, Tipografia } from "../src/constantes/tema";
 import { useEstadoCasa } from "../src/estado/ContextoCasa";
 import { publicarComandoParedLlorosa } from "../src/servicios/servicio-mqtt";
-import Toast from "react-native-toast-message";
 
+// Ajustada para manejar "--:--"
 const crearFechaDeHora = (horaString: string) => {
-  if (!horaString || !horaString.includes(":")) return new Date();
+  if (!horaString || horaString === "--:--" || !horaString.includes(":")) {
+    const ahora = new Date();
+    // Opcional: podrías establecer una hora predeterminada aquí si lo deseas
+    return ahora;
+  }
 
   const [h, m] = horaString.split(":");
   const fecha = new Date();
@@ -33,8 +38,15 @@ const formatearHoraInterna = (fecha: Date) => {
   return `${h}:${m}`;
 };
 
+// Ajustada para manejar "--:--" directamente
 const formatearHoraVisible = (horaString24h: string) => {
-  if (!horaString24h || !horaString24h.includes(":")) return "--:--";
+  if (
+    !horaString24h ||
+    horaString24h === "--:--" ||
+    !horaString24h.includes(":")
+  ) {
+    return "--:--";
+  }
 
   const [hStr, mStr] = horaString24h.split(":");
   let horas = parseInt(hStr, 10);
@@ -51,8 +63,11 @@ export default function PantallaParedLlorosa() {
   const router = useRouter();
   const { paredLlorosa, actualizarParedLlorosa } = useEstadoCasa();
 
-  const [horaInicio, setHoraInicio] = useState(paredLlorosa.horaEncendido);
-  const [horaFin, setHoraFin] = useState(paredLlorosa.horaApagado);
+  // Inicializamos con el estado global o "--:--"
+  const [horaInicio, setHoraInicio] = useState(
+    paredLlorosa.horaEncendido || "--:--",
+  );
+  const [horaFin, setHoraFin] = useState(paredLlorosa.horaApagado || "--:--");
 
   const [mostrarPickerInicio, setMostrarPickerInicio] = useState(false);
   const [mostrarPickerFin, setMostrarPickerFin] = useState(false);
@@ -90,13 +105,43 @@ export default function PantallaParedLlorosa() {
     setHoraFin(formatearHoraInterna(fechaSeleccionada));
   };
 
+  // Variable para determinar si el botón "Guardar" debe estar habilitado
+  const botonGuardarDeshabilitado =
+    horaInicio === "--:--" || horaFin === "--:--";
+
   const guardarProgramacion = () => {
+    // Verificación extra por si acaso
+    if (botonGuardarDeshabilitado) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Debes seleccionar ambas horas para guardar.",
+      });
+      return;
+    }
+
     actualizarParedLlorosa(paredLlorosa.estado, horaInicio, horaFin);
     publicarComandoParedLlorosa("programar", horaInicio, horaFin);
     Toast.show({
       type: "success",
-      text1: "¡Horario Guardado!",
+      text1: "¡Horario guardado!",
       text2: "La pared llorosa operará en el horario establecido.",
+    });
+  };
+
+  const borrarProgramacion = () => {
+    // Al borrar, restauramos a "--:--"
+    setHoraInicio("--:--");
+    setHoraFin("--:--");
+
+    // Enviamos "00:00" al contexto y MQTT porque es el formato esperado para "desactivar"
+    actualizarParedLlorosa(paredLlorosa.estado, "00:00", "00:00");
+    publicarComandoParedLlorosa("programar", "00:00", "00:00");
+
+    Toast.show({
+      type: "info",
+      text1: "Programación eliminada",
+      text2: "El horario automático ha sido desactivado.",
     });
   };
 
@@ -208,12 +253,41 @@ export default function PantallaParedLlorosa() {
             </View>
           </View>
 
-          <BotonAnimado
-            estilo={estilos.botonGuardar}
-            onPress={guardarProgramacion}
+          <View
+            style={{
+              flexDirection: "row",
+              gap: Espaciado.mediano,
+            }}
           >
-            <Text style={estilos.textoBotonGuardar}>Guardar Programación</Text>
-          </BotonAnimado>
+            <BotonAnimado
+              estilo={[estilos.botonBorrar, { flex: 1 }]}
+              onPress={borrarProgramacion}
+            >
+              <Text style={estilos.textoBotonBorrar}>Borrar</Text>
+            </BotonAnimado>
+
+            <BotonAnimado
+              // Aplicamos un estilo deshabilitado condicionalmente
+              estilo={[
+                estilos.botonGuardar,
+                { flex: 2 },
+                botonGuardarDeshabilitado && estilos.botonDeshabilitado,
+              ]}
+              // Deshabilitamos el onPress si las horas no están listas
+              onPress={
+                botonGuardarDeshabilitado ? undefined : guardarProgramacion
+              }
+            >
+              <Text
+                style={[
+                  estilos.textoBotonGuardar,
+                  botonGuardarDeshabilitado && estilos.textoDeshabilitado,
+                ]}
+              >
+                Guardar
+              </Text>
+            </BotonAnimado>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -335,5 +409,41 @@ const estilos = StyleSheet.create({
     fontSize: Tipografia.tamanos.subtitulo,
     fontWeight: Tipografia.pesos.negrita,
     letterSpacing: 0.5,
+  },
+  botonBorrar: {
+    backgroundColor: Colores.fondoPrincipal,
+    flexDirection: "row",
+    gap: Espaciado.pequeno,
+    paddingVertical: Espaciado.grande,
+    paddingHorizontal: Espaciado.mediano,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Espaciado.mediano,
+
+    shadowColor: "#E53935",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  textoBotonBorrar: {
+    color: "#E53935",
+    fontSize: Tipografia.tamanos.subtitulo,
+    fontWeight: Tipografia.pesos.negrita,
+    letterSpacing: 0.5,
+  },
+  // NUEVOS ESTILOS PARA EL BOTÓN DESHABILITADO
+  botonDeshabilitado: {
+    backgroundColor: "#2C3A5A", // Un color más apagado/grisáceo
+    shadowOpacity: 0, // Quitamos la sombra para que se vea "plano"
+    elevation: 0,
+    opacity: 0.6,
+  },
+  textoDeshabilitado: {
+    color: "#6B7A9A", // Texto menos visible
   },
 });
