@@ -1,11 +1,11 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import { ChevronLeft, Lightbulb } from "lucide-react-native";
-import Slider from "@react-native-community/slider";
-import { Colores, Tipografia, Espaciado } from "../src/constantes/tema";
+import React from "react";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import BotonAnimado from "../src/componentes/ui/BotonAnimado";
 import SwitchPersonalizado from "../src/componentes/ui/SwitchPersonalizado";
+import { Colores, Espaciado, Tipografia } from "../src/constantes/tema";
 import { useEstadoCasa } from "../src/estado/ContextoCasa";
 import { publicarComandoLuz } from "../src/servicios/servicio-mqtt";
 
@@ -52,46 +52,51 @@ export default function PantallaLuces() {
       </View>
 
       <ScrollView contentContainerStyle={estilos.contenedorScroll}>
-        {Object.entries(luces).map(([habitacion, info]) => (
-          <View key={habitacion} style={estilos.tarjetaLuz}>
-            <View style={estilos.filaPrincipal}>
-              <View style={estilos.filaInfo}>
-                <Lightbulb
-                  color={info.estado ? "#FDD835" : Colores.textoSecundario}
-                  size={24}
+        {Object.entries(luces)
+          .filter(
+            ([habitacion]) =>
+              habitacion !== "entrada" && habitacion !== "calle",
+          )
+          .map(([habitacion, info]) => (
+            <View key={habitacion} style={estilos.tarjetaLuz}>
+              <View style={estilos.filaPrincipal}>
+                <View style={estilos.filaInfo}>
+                  <Lightbulb
+                    color={info.estado ? "#FDD835" : Colores.textoSecundario}
+                    size={24}
+                  />
+                  <Text style={estilos.textoHabitacion}>
+                    {formatearNombreHabitacion(habitacion)}
+                  </Text>
+                </View>
+                <SwitchPersonalizado
+                  activo={info.estado}
+                  alCambiar={(val) => manejarCambioLuz(habitacion, val)}
                 />
-                <Text style={estilos.textoHabitacion}>
-                  {formatearNombreHabitacion(habitacion)}
-                </Text>
               </View>
-              <SwitchPersonalizado
-                activo={info.estado}
-                alCambiar={(val) => manejarCambioLuz(habitacion, val)}
-              />
-            </View>
 
-            {info.estado && (
-              <View style={estilos.contenedorSlider}>
-                <Text style={estilos.textoBrillo}>
-                  Brillo: {Math.round(info.brillo)}%
-                </Text>
-                <Slider
-                  style={{ width: "100%", height: 40 }}
-                  minimumValue={0}
-                  maximumValue={100}
-                  step={1}
-                  value={info.brillo}
-                  onSlidingComplete={(val) =>
-                    manejarCambioBrillo(habitacion, val)
-                  }
-                  minimumTrackTintColor={Colores.botonEncendido}
-                  maximumTrackTintColor={Colores.fondoTarjetasClaras}
-                  thumbTintColor={Colores.textoPrincipal}
-                />
-              </View>
-            )}
-          </View>
-        ))}
+              {info.estado && (
+                <View style={estilos.contenedorSlider}>
+                  <Text style={estilos.textoBrillo}>
+                    Brillo: {Math.round(info.brillo)}%
+                  </Text>
+                  <Slider
+                    style={{ width: "100%", height: 40 }}
+                    minimumValue={0}
+                    maximumValue={100}
+                    step={1}
+                    value={info.brillo}
+                    onSlidingComplete={(val) =>
+                      manejarCambioBrillo(habitacion, val)
+                    }
+                    minimumTrackTintColor={Colores.botonEncendido}
+                    maximumTrackTintColor={Colores.fondoTarjetasClaras}
+                    thumbTintColor={Colores.textoPrincipal}
+                  />
+                </View>
+              )}
+            </View>
+          ))}
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,10 +2,10 @@
 
 import React, {
   createContext,
-  useContext,
-  useState,
   ReactNode,
+  useContext,
   useEffect,
+  useState,
 } from "react";
 import { setCallbackMensajeMQTT } from "../servicios/servicio-mqtt";
 
@@ -40,8 +40,6 @@ interface AlmacenCasa {
 }
 
 const estadoInicialLuces: LucesCasa = {
-  entrada: { estado: false, brillo: 0 },
-  calle: { estado: false, brillo: 0 },
   porton: { estado: false, brillo: 0 },
   cocina: { estado: false, brillo: 0 },
   sala: { estado: false, brillo: 0 },
