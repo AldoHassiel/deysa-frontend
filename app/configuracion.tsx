@@ -1,27 +1,27 @@
 // app/configuracion.tsx
-import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { ChevronLeft, Eye, EyeOff, Wifi } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  SafeAreaView,
+  Modal,
   PermissionsAndroid,
   Platform,
   Pressable,
-  Modal,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { Wifi, ChevronLeft, Eye, EyeOff } from "lucide-react-native";
-import { Colores, Tipografia, Espaciado } from "../src/constantes/tema";
 import BotonAnimado from "../src/componentes/ui/BotonAnimado";
+import { Colores, Espaciado, Tipografia } from "../src/constantes/tema";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import RNBluetoothClassic, {
   BluetoothDevice,
 } from "react-native-bluetooth-classic";
-import WifiManager from "react-native-wifi-reborn";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import WifiManager from "react-native-wifi-reborn";
 
 import Paso1Bluetooth from "../src/componentes/configuracion/Paso1Bluetooth";
 import Paso2Dashboard from "../src/componentes/configuracion/Paso2Dashboard";
@@ -50,9 +50,9 @@ export default function PantallaConfiguracion() {
   const [verContrasena, setVerContrasena] = useState(false);
 
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [estadoEnvio, setEstadoEnvio] = useState<"cargando" | "exito">(
-    "cargando",
-  );
+  const [estadoEnvio, setEstadoEnvio] = useState<
+    "cargando" | "exito" | "fallo"
+  >("cargando");
 
   useEffect(() => {
     iniciarFlujoInteligente();
@@ -178,14 +178,21 @@ export default function PantallaConfiguracion() {
       const sub = dispositivo.onDataReceived((data) => {
         try {
           const json = JSON.parse(data.data);
+
           if (
             json.disponible === true &&
             json.wifiConectado === true &&
             json.ssid
           ) {
             setRedActualESP(json.ssid);
-          } else {
+          } else if (json.disponible === true) {
             setRedActualESP("Sin conexión");
+          }
+
+          if (json.wifiConectado === true) {
+            setEstadoEnvio("exito");
+          } else if (json.wifiConectado === false && json.errorWifi === true) {
+            setEstadoEnvio("fallo");
           }
         } catch (e) {}
       });
@@ -272,6 +279,7 @@ export default function PantallaConfiguracion() {
     setModalAbierto(false);
     setPaso(4);
     setEstadoEnvio("cargando");
+
     try {
       const payload = JSON.stringify({
         type: "wifi_config",
@@ -284,11 +292,17 @@ export default function PantallaConfiguracion() {
         JSON.stringify({ ssid: redSeleccionada, password: contrasenaWifi }),
       );
 
-      await dispositivoSeleccionado.disconnect();
-      setEstadoEnvio("exito");
+      // Timeout si el ESP no responde en 15 segundos
+      setTimeout(() => {
+        setEstadoEnvio((estadoActual) => {
+          if (estadoActual === "cargando") {
+            return "fallo"; // Cambiamos a fallo en lugar de regresar
+          }
+          return estadoActual;
+        });
+      }, 15000);
     } catch (error) {
-      Toast.show({ type: "error", text1: "Error de Transmisión" });
-      setPaso(3);
+      setEstadoEnvio("fallo");
     }
   };
 
@@ -377,13 +391,20 @@ export default function PantallaConfiguracion() {
             iniciarEscaneoWifi={iniciarEscaneoWifi}
           />
         )}
-        {paso === 4 && <Paso4Exito estadoEnvio={estadoEnvio} />}
+        {paso === 4 && (
+          <Paso4Exito
+            estadoEnvio={estadoEnvio}
+            alReintentar={() => {
+              setPaso(3);
+              setEstadoEnvio("cargando");
+            }}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
 }
 
-// ... Mantén tu bloque de estilos exactamente igual que el anterior
 const estilos = StyleSheet.create({
   contenedorSafe: { flex: 1, backgroundColor: Colores.fondoPrincipal },
   header: {
